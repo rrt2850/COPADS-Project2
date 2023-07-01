@@ -1,0 +1,147 @@
+Project 2: Prime Number Generation
+1   Goals
+        There are many tasks that are computationally expensive and can benefit from parallel execution.
+        One such task is math problems that require brute force work. This could be anything from coming
+        up with all possible values for a simple equation or attempting to break into a computer system
+        that is protected with cryptography. We will be looking to reduce the run time of one such program
+        using parallelism.
+2   Overview
+        Write a program to generate large prime numbers using the C# parallel libraries.
+3   Prime Numbers
+        Recall that a prime number is any number that is divisible by 1 and itself. Examples of prime
+        numbers are 2, 3, 5, 7, etc. Mathematically speaking, the GCD(prime, any number) is always 1.
+        We will be generating prime numbers that are orders of magnitude larger, however, by generating
+        a number and checking to see if it’s prime. If we find one, return it, if not ignore it.
+        In order to generate these large prime numbers, you will need to use the BigInteger class. Failure
+        to use this class will cause your results to overflow and incorrect numbers will be generated.
+        The brute force approach to generating these large prime numbers will be to generate a large
+        number and then check to see if it’s prime. Because computers random functions are generally
+        very poor at being truly random, you should utilize the RandomNumberGenerator class in
+        order to generate a random set of bytes. These bytes can then be used in the constructor of a
+        BigInteger, which can then be checked for prime. The RandomNumberGenerator lives in the
+        System.Security.Cryptography namespace. You MAY NOT use any other classes in this namespace
+        other than the RandomNumberGenerator.
+4    Requirements
+    1.  Your program must be a .net core command line program:
+        dotnet run <bits> <count=1>
+            - bits - the number of bits of the prime number, this must be a
+            multiple of 8, and at least 32 bits.
+            - count - the number of prime numbers to generate, defaults to 1
+        Note: The program should be named PrimeGen
+    2.  If the user specifies invalid command line arguments, you must print out an error message
+        indicating the problem.
+    3.  When a prime number is found, it should be printed to the console, along with the count
+        of the prime, the number size, and the time it took to generate all the numbers (using the
+        Stopwatch class). Note that these numbers are wrapped for display purposes only, ie:
+            BitLength: 1024 bits
+            1: 1285165561465087868562684198745328956752560284260260265456709
+            7505505934956650014021328669818381690833872222303489664120336446
+            9398319272777220653973972561581784086368724619089490934136815017
+            3861703251013652236514462095730762271347959578483625462586989757
+            726427848821016397002993034118804677213152199505673023
+            2: 6812567535241205983852042135903252052799891268018107824631538
+            6080215084545884981280751929824198633564326565794558002998032073
+            5768431891738105094954801753818152457120824980004041180585116564
+            4814849907931139214005702384664112345005728830748284659888546766
+            0635611642164576764778881332244113165599376025301458423
+            Time to Generate: 00:00:02.6679597
+    4.  Your program should print the print numbers as it finds them, not when it finishes finishing
+        all the numbers.
+    5.  Your program should NEVER crash.
+5    Design
+    1.  The program must be written using the C# parallel libraries
+    2.  The program must be command line driven
+    3.  The output (minus error messages), must match the writeup
+    4.  Command line help must be provided
+    5.  The program must take advantage (and run faster) on a multi-core processor
+    6.  The program must be designed using object oriented design principles as appropriate.
+    7.  The program must make use of reusable software components as appropriate
+    8.  Each public class/interface and property must include a comment describing the overall class
+        or interface or property
+    9.  The parallelization should happen outside of the Miller-Rabin algorithm, that algorithm
+        should not itself be parallelized.
+6   Submission Requirements
+    Zip up your solution in a file called project2.zip. The zip file should contain at least the following
+    files:
+    • Any source files (*.cs)
+    • PrimeGen.csproj
+    I will test your project by running:
+        dotnet restore
+        dotnet run <bits> <count>
+    I will be testing your program on either a Mac or Windows machine, with secondary tests being
+    run on Linux. You should ensure your program works on multiple platforms.
+7 Sample Runs (for output formatting)
+    dotnet run 32 2
+        BitLength: 32 bits
+        1: 1409777191
+        2: 180510569
+        Time to Generate: 00:00:00.0461866
+    dotnet run 128 1
+        BitLength: 128 bits
+        1: 22887942457323345600013150184566675169
+        Time to Generate: 00:00:00.0615736
+    dotnet run 512 1
+        BitLength: 512 bits
+        1: 77858585710351501579057694717430871711069715647183278236221391509024
+        94670896144352552869866488731591968304644612701133871886581614813195580
+        61025412051327
+        Time to Generate: 00:00:00.1955712
+8 Checking Prime
+    The following pseudo code can be used to check to see if a number is prime. You should implement
+    an extension method with the following signature:
+
+    static Boolean IsProbablyPrime(this BigInteger value, int k = 10)
+    
+    where k is the number of witnesses (10 is the default value and should work for this project).
+    This method can then be called on a BigInteger in the following manner:
+    
+    var bi = new BigInteger(7);
+    bi.isProbablyPrime();
+    
+    You must write this method from the pseudo code, you may not find a version on the internet or
+    a previous version of this project. You may use the ModPow function in your solution
+
+    input #1: n > 3, an odd integer to be tested for primality
+    input #2: k, the number of rounds of testing to perform
+    output: "composite" if n is composite, otherwise "probably prime"
+
+    write n as (2^r)·d + 1 with d odd (by factoring powers of 2 from n − 1)
+    WitnessLoop: repeat k times:
+        pick a random integer a in the range [2, n − 2]
+        x ← a^d mod n
+        if x = 1 or x = n − 1 then
+            continue WitnessLoop
+        repeat r − 1 times:
+            x ← x^2 mod n
+            if x = n − 1 then
+                continue WitnessLoop
+        return "composite"
+    return "probably prime"
+
+9   Grading Guide
+    Your project is out of 100 points. I will grade your project by:
+        •   (40 points) Evaluating the design of your program, as documented in the requirements and
+            as implemented in the source code.
+            –   All of the Software Design Criteria are fully met: 40 points.
+            –   Some of the Software Design Criteria are not fully met: 0 points.
+            –   Code that is not thread safe in any manner will have a lose all 20pt deduction
+        •   (30 points) Generating a prime number correctly. If the number produced is not a prime
+            number. I will generate 6 prime numbers of varying length; half the tests will generate multiple
+            primes, the other half will generate a single prime, each number is worth 5 points
+            –   Number displayed is prime: 5 points.
+            –   Number displayed is not prime: 0 points.
+            I will grade these test cases based solely on whether your program produces the correct output
+            as specified in the above Software Requirements. Any deviation from the requirements will
+            result in a grade of 0 for the test case. This includes errors in the formatting (such as missing
+            or extra spaces), incorrect uppercase/lowercase, output lines not terminated with a newline,
+            extra newline(s) in the output, times printing incorrectly, and extraneous output not called
+            for in the requirements. The requirements state exactly what the output is supposed to be,
+            and there is no excuse for outputting anything different. If any requirement is unclear, please
+            ask for clarification. Note: you can lose points here and design criteria for the same flaw.
+        •   (30 points) Performance of generating 6 sets of prime numbers. Generating a valid prime can
+            run in a variable amount of time, though anything less than 1024 bit keys should be able to
+            complete in less than 1s on my machine (my solution has them typically completing in less
+            than 0.1s for a single number). Failure to properly use a parallel algorithm and generating
+            prime number too slowly can earn a deduction of up to 30 points. I will test up to 8192 bit
+            numbers. Without adding logic to these larger numbers to improve performance, you will not
+            get credit for the performance
